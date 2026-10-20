@@ -1,0 +1,43 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+source scripts/env.sh
+APK=app/build/outputs/apk/release/app-release.apk
+apkanalyzer apk file-size "$APK"
+mkdir -p build/verify
+apkanalyzer manifest print "$APK" > build/verify/release-manifest.xml
+python3 - "$APK" <<'PY'
+import os, sys, zipfile
+import xml.etree.ElementTree as ET
+with zipfile.ZipFile(sys.argv[1]) as z:
+    base = os.path.getsize(sys.argv[1]) - sum(i.compress_size for i in z.infolist() if i.filename.startswith('assets/wallpapers/'))
+    dex = sum(i.file_size for i in z.infolist() if i.filename.endswith('.dex'))
+    print(f'APK without wallpaper data, including all ZIP/signing overhead: {base} bytes (budget 307200)')
+    print(f'Uncompressed DEX: {dex} bytes (budget 102400)')
+    assert base < 300 * 1024, 'APK budget exceeded'
+    assert dex < 100 * 1024, 'DEX budget exceeded'
+    assert not any(i.filename.startswith('lib/') for i in z.infolist()), 'Native libraries forbidden'
+    photos = {i.filename for i in z.infolist() if i.filename.startswith('assets/wallpapers/') and i.filename.endswith('.jpg')}
+    blurs = {i.filename for i in z.infolist() if i.filename.startswith('assets/wallpapers/blur/') and i.filename.endswith('.png')}
+    glass = {i.filename for i in z.infolist() if i.filename.startswith('assets/wallpapers/glass/') and i.filename.endswith('.png')}
+    assert {i.filename for i in z.infolist() if i.filename.startswith('assets/wallpapers/') and not i.is_dir()} == photos | blurs | glass, 'Unexpected wallpaper asset'
+    assert 10 <= len(photos) <= 15
+    assert blurs == {p.replace('assets/wallpapers/', 'assets/wallpapers/blur/').replace('.jpg', '.png') for p in photos}, 'Each photo needs its precomputed blur'
+    assert glass == {p.replace('assets/wallpapers/', 'assets/wallpapers/glass/').replace('.jpg', '.png') for p in photos}, 'Each photo needs its player glass'
+manifest = ET.parse('build/verify/release-manifest.xml').getroot()
+android = '{http://schemas.android.com/apk/res/android}'
+assert not manifest.findall('uses-permission'), 'Permissions forbidden'
+application = manifest.find('application')
+assert application.get(android + 'debuggable', 'false') == 'false'
+services = application.findall('service')
+assert len(services) == 1, 'Only the approved media-access service is allowed'
+service = services[0]
+assert service.get(android + 'name') == 'xyz.lukeomalley.palmyra.MediaAccessService'
+assert service.get(android + 'permission') == 'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE'
+assert service.get(android + 'exported') == 'true'
+assert [a.get(android + 'name') for a in service.findall('intent-filter/action')] == ['android.service.notification.NotificationListenerService']
+assert not application.findall('receiver'), 'Manifest receivers forbidden'
+assert manifest.find('uses-sdk').get(android + 'minSdkVersion') == '28'
+assert manifest.find('uses-sdk').get(android + 'targetSdkVersion') == '36'
+print('Release manifest: API 28/36, not debuggable, approved protected media listener only; no uses-permissions, receivers or native libraries')
+PY

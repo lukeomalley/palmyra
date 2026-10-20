@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+source scripts/env.sh
+./gradlew testDebugUnitTest -Proborazzi.test.record=true --tests '*HomeScreenshotTest.reference' --console=plain
+mkdir -p build/compare
+render=app/src/test/screenshots/reference.png
+magick "$render" reference.png +append build/compare/side-by-side.png
+magick reference.png "$render" -compose blend -define compose:args=50,50 -composite build/compare/overlay.png
+magick reference.png "$render" -compose difference -composite build/compare/difference.png
+printf '%s\n' build/compare/side-by-side.png build/compare/overlay.png build/compare/difference.png

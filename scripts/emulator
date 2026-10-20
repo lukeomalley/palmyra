@@ -1,0 +1,22 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+source scripts/env.sh
+export ANDROID_AVD_HOME="$HOME/.android/avd"
+image='system-images;android-31;android-tv;arm64-v8a'
+if [ ! -d "$ANDROID_HOME/system-images/android-31/android-tv/arm64-v8a" ]; then
+    sdkmanager "$image"
+fi
+mkdir -p "$ANDROID_AVD_HOME"
+if [ ! -f "$ANDROID_AVD_HOME/Palmyra_API31.avd/config.ini" ]; then
+    printf 'no\n' | avdmanager create avd --name Palmyra_API31 --package "$image" --device tv_1080p --path "$ANDROID_AVD_HOME/Palmyra_API31.avd"
+fi
+python3 - "$ANDROID_AVD_HOME/Palmyra_API31.avd/config.ini" <<'PY'
+from pathlib import Path
+import sys
+path = Path(sys.argv[1])
+settings = {'hw.lcd.width': '1920', 'hw.lcd.height': '1080', 'hw.lcd.density': '320', 'hw.ramSize': '2048', 'showDeviceFrame': 'no', 'disk.dataPartition.size': '4G'}
+lines = [line for line in path.read_text().splitlines() if line.split('=')[0].strip() not in settings]
+path.write_text('\n'.join(lines) + '\n' + ''.join(f'{key}={value}\n' for key, value in settings.items()))
+PY
+exec "$ANDROID_HOME/emulator/emulator" -avd Palmyra_API31 -port 5554 -no-window -no-audio -no-snapshot -no-boot-anim -gpu swiftshader

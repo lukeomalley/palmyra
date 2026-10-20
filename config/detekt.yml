@@ -1,0 +1,5 @@
+build:
+  maxIssues: 0
+style:
+  ReturnCount:
+    max: 3

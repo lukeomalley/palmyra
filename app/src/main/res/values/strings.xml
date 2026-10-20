@@ -1,0 +1,12 @@
+<resources>
+    <string name="no_favorites">No favorite apps installed</string>
+    <string name="art_mode">Art Mode</string>
+    <string name="all_apps">All apps</string>
+    <string name="settings">Settings</string>
+    <string name="app_unavailable">This app is no longer available</string>
+    <string name="media_access">Palmyra Spotify playback</string>
+    <string name="open_spotify">Open Spotify</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="next_track">Next track</string>
+</resources>

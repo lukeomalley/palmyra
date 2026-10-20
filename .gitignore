@@ -1,0 +1,25 @@
+.gradle/
+**/build/
+local.properties
+signing/
+.idea/
+*.iml
+.envrc.local
+.DS_Store
+build-*-metadata.xml
+.tooling/
+__pycache__/
+
+# Private owner handoff and device diagnostics stay local.
+/PLAN.md
+/MORNING.md
+/docs/COMPARISON.md
+/docs/compare-*.png
+/docs/font-comparison.png
+/docs/performance-*/
+/docs/smoke/
+/docs/spotify-*/
+/docs/tv-cleanup-*/
+/docs/wallpapers-*/
+/scripts/deploy
+/scripts/rollback

@@ -1,0 +1,29 @@
+#!/bin/bash
+# Static checks for the non-Gradle project files. No device access.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+source scripts/env.sh
+for script in scripts/env.sh scripts/verify scripts/apk-size scripts/project-check scripts/install-hooks scripts/compare-reference scripts/smoke scripts/baseline scripts/build-smoke-fixtures scripts/emulator scripts/generate-blurs scripts/media-smoke; do
+    bash -n "$script"
+done
+python3 - <<'PY'
+import ast
+from pathlib import Path
+import subprocess
+for path in Path('scripts').glob('*.py'):
+    ast.parse(path.read_text(), filename=str(path))
+paths = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard']).decode().splitlines()
+text_extensions = {'.kt', '.kts', '.xml', '.md', '.toml', '.sh', '.py', '.txt', '.properties'}
+for name in paths:
+    path = Path(name)
+    if path.is_file() and (path.suffix in text_extensions or name.startswith('scripts/')):
+        text = path.read_text()
+        assert text.isascii(), f'Non-ASCII text: {name}'
+assert Path('CREDITS.md').read_bytes() == Path('app/src/main/assets/CREDITS.txt').read_bytes(), 'APK asset credits are stale'
+assert Path('licenses/Inter-OFL.txt').read_bytes() == Path('app/src/main/assets/Inter-OFL.txt').read_bytes(), 'APK font license is stale'
+tracked = subprocess.check_output(['git', 'ls-files']).decode().splitlines()
+for name in tracked:
+    path = Path(name)
+    assert not (name.startswith('signing/') or path.suffix in {'.jks', '.keystore', '.pem', '.p12'} or path.name in {'local.properties', 'keystore.properties', '.env'}), f'Private file tracked: {name}'
+print('PASS shell/Python syntax, ASCII text and no tracked private files')
+PY

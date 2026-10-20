@@ -1,0 +1,6 @@
+#!/bin/bash
+# Build two tiny TV apps for emulator navigation and process-death tests.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+source scripts/env.sh
+python3 scripts/smoke-fixtures.py

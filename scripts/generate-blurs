@@ -1,0 +1,6 @@
+#!/bin/bash
+# Generate exact Android-rendered blur assets on the host, never on the TV.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+source scripts/env.sh
+PALMYRA_GENERATE_BLURS=1 ./gradlew testDebugUnitTest --tests '*WallpaperAssetsTest' --rerun-tasks --console=plain

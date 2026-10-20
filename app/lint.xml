@@ -1,0 +1,7 @@
+<lint>
+    <!-- The project deliberately pins SDK 36 and a compatible reproducible toolchain. -->
+    <issue id="OldTargetApi" severity="ignore" />
+    <issue id="GradleDependency" severity="ignore" />
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+    <issue id="NewerVersionAvailable" severity="ignore" />
+</lint>

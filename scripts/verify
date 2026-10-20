@@ -1,0 +1,29 @@
+#!/bin/bash
+set -uo pipefail
+cd "$(dirname "$0")/.."
+source scripts/env.sh
+mkdir -p build/verify
+failed=0
+for task in spotlessCheck detekt checkRuntimeDependencies compileDebugKotlin testDebugUnitTest verifyRoborazziDebug lintRelease assembleRelease; do
+    if ./gradlew "$task" --console=plain > "build/verify/$task.log" 2>&1; then
+        printf 'PASS %s\n' "$task"
+    else
+        printf 'FAIL %s (build/verify/%s.log)\n' "$task" "$task"
+        tail -60 "build/verify/$task.log"
+        failed=1
+        break
+    fi
+done
+if [ "$failed" -eq 0 ]; then
+    if scripts/apk-size > build/verify/apk-size.log 2>&1; then
+        printf 'PASS apk-size\n'
+        cat build/verify/apk-size.log
+    else
+        cat build/verify/apk-size.log
+        failed=1
+    fi
+fi
+if [ "$failed" -eq 0 ]; then
+    if scripts/project-check; then printf 'PASS project-check\n'; else failed=1; fi
+fi
+exit "$failed"

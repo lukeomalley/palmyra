@@ -1,0 +1,19 @@
+[versions]
+agp = "9.4.1"
+kotlin = "2.4.21"
+gradle = "9.8.2"
+spotless = "8.0.0"
+detekt = "1.23.8"
+roborazzi = "1.76.0"
+robolectric = "4.17"
+junit = "4.13.2"
+[plugins]
+android = { id = "com.android.application", version.ref = "agp" }
+kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+[libraries]
+junit = { module = "junit:junit", version.ref = "junit" }
+roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
