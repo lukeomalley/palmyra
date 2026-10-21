@@ -36,7 +36,7 @@ support determine what is available.
 
 ## Navigation sound
 
-A quiet Pop plays when selection moves between apps, menu items or player
+A quiet Alternate pop plays when selection moves between apps, menu items or player
 controls. Holding a direction against the end of a list stays silent, as do Home
 and Art Mode. It follows Android's system sound-effects setting and volume.
 The short sample is loaded once per visible activity and released on pause.

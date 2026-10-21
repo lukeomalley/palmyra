@@ -1,9 +1,9 @@
 # Navigation sound verification
 
-The current sample is Kenney drop_001 ("Pop"), the first Pop in the audition list.
-It is a 23,374-byte stereo PCM WAV: 5,824 frames at 44,100 Hz, approximately
-132 ms. The source and CC0 license are in CREDITS.md. The playback engine is
-unchanged. Pop-specific startup timing and PSS have not been remeasured.
+The current sample is Kenney drop_002 ("Alternate pop"), option 5 in the audition list.
+It is a 35,662-byte stereo PCM WAV: 8,896 frames at 44,100 Hz, approximately
+202 ms. The source and CC0 license are in CREDITS.md. The playback engine is
+unchanged. Alternate-pop startup timing and PSS have not been remeasured.
 
 A one-shot worker constructs SoundPool away from the UI thread. The sample loads
 asynchronously; navigation skips sound until ready. Nothing queues or retries.
