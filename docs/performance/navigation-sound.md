@@ -1,7 +1,9 @@
 # Navigation sound verification
 
-The bundled Kenney click_002 sample is a 1,102-byte mono PCM WAV: 512 frames at
-44,100 Hz, approximately 12 ms. The source and CC0 license are in CREDITS.md.
+The current sample is Kenney drop_001 ("Pop"), the first Pop in the audition list.
+It is a 23,374-byte stereo PCM WAV: 5,824 frames at 44,100 Hz, approximately
+132 ms. The source and CC0 license are in CREDITS.md. The playback engine is
+unchanged. Pop-specific startup timing and PSS have not been remeasured.
 
 A one-shot worker constructs SoundPool away from the UI thread. The sample loads
 asynchronously; navigation skips sound until ready. Nothing queues or retries.
@@ -9,7 +11,10 @@ Only one stream can play. The player requests no audio focus, reads Android's
 sound-effects preference on resume, and releases its resources on pause.
 Initialization completed after pause is discarded and released.
 
-## Emulator performance
+## Initial Tiny tick emulator measurements
+
+The following measurements used the previous 1,102-byte click_002 sample
+("Tiny tick"), a 12 ms mono PCM WAV. They are historical engine measurements.
 
 Measured on the arm64 API 31 Android TV emulator with system sound effects enabled.
 Each build used three cold launches, followed by the same idle frame, CPU and PSS

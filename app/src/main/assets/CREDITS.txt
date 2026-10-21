@@ -104,9 +104,9 @@ Static weights 400 and 500, optical size 32, subset for Latin.
 
 ## Navigation sound
 
-Kenney Interface Sounds (1.0), click_002 ("Tiny tick").
+Kenney Interface Sounds (1.0), drop_001 ("Pop").
 Author: Kenney
 Source: https://kenney.nl/assets/interface-sounds
 License: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
-A 12 ms mono PCM WAV is bundled locally as res/raw/navigation_tick.wav.
-Preview-matching WAV source: https://github.com/Calinou/kenney-interface-sounds/blob/4596a49eaf5a533948d49a47467f606bcdea70ff/addons/kenney_interface_sounds/click_002.wav
+A 132 ms stereo PCM WAV is bundled locally as res/raw/navigation_tick.wav.
+Preview-matching WAV source: https://github.com/Calinou/kenney-interface-sounds/blob/4596a49eaf5a533948d49a47467f606bcdea70ff/addons/kenney_interface_sounds/drop_001.wav

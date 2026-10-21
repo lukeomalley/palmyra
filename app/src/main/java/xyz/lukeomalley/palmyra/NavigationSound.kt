@@ -7,7 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 
-/** One short, preloaded tick. No audio focus request, so music keeps playing. */
+/** One short, preloaded navigation sound. No audio focus request, so music keeps playing. */
 class NavigationSound(
     private val context: Context,
 ) {
