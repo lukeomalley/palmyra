@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
+import android.provider.Settings
 import android.view.KeyEvent
 import android.widget.FrameLayout
 import org.junit.Assert.assertEquals
@@ -26,6 +27,43 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [28], qualifiers = "w960dp-h540dp-land-xhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class HomeActivityTest {
+    @Test
+    fun navigationTicksOnlyWhenSelectionMoves() {
+        available("com.netflix.ninja")
+        available("com.spotify.tv.android")
+        Settings.System.putInt(
+            RuntimeEnvironment.getApplication().contentResolver,
+            Settings.System.SOUND_EFFECTS_ENABLED,
+            1,
+        )
+        val controller = Robolectric.buildActivity(HomeActivity::class.java).setup().visible()
+        try {
+            val activity = controller.get()
+            val sound =
+                HomeActivity::class.java
+                    .getDeclaredField("navigationSound")
+                    .apply { isAccessible = true }
+                    .get(activity) as NavigationSound
+            val pool = awaitNavigationPool(sound)
+            val audio = shadowOf(pool)
+            audio.notifyResourceLoaded(R.raw.navigation_tick, true)
+            key(activity, KeyEvent.KEYCODE_DPAD_UP)
+            assertFalse(audio.wasResourcePlayed(R.raw.navigation_tick))
+            key(activity, KeyEvent.KEYCODE_DPAD_DOWN)
+            key(activity, KeyEvent.KEYCODE_DPAD_DOWN)
+            assertEquals(1, audio.getResourcePlaybacks(R.raw.navigation_tick).size)
+            key(activity, KeyEvent.KEYCODE_DPAD_RIGHT)
+            assertEquals(2, audio.getResourcePlaybacks(R.raw.navigation_tick).size)
+            key(activity, KeyEvent.KEYCODE_DPAD_CENTER)
+            key(activity, KeyEvent.KEYCODE_DPAD_RIGHT)
+            key(activity, KeyEvent.KEYCODE_BACK)
+            key(activity, KeyEvent.KEYCODE_HOME)
+            assertEquals(2, audio.getResourcePlaybacks(R.raw.navigation_tick).size)
+        } finally {
+            controller.pause().stop().destroy()
+        }
+    }
+
     @Test
     fun returningFromAnAppReusesRowsAndPreservesSelection() {
         available("com.netflix.ninja")

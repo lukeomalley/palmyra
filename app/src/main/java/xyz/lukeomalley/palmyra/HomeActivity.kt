@@ -20,6 +20,7 @@ open class HomeActivity : Activity() {
     private lateinit var wallpaper: WallpaperController
     private lateinit var clock: Clock
     private lateinit var playback: SpotifyPlayback
+    private val navigationSound = NavigationSound(this)
     private var foreground = false
     private var stopped = true
     private val prefs by lazy { getSharedPreferences("palmyra", MODE_PRIVATE) }
@@ -82,11 +83,13 @@ open class HomeActivity : Activity() {
         }
         scene.post { if (foreground) scene.render(state, false) }
         clock.start()
+        navigationSound.start()
         if (!allApps) playback.start()
     }
 
     override fun onPause() {
         foreground = false
+        navigationSound.stop()
         playback.stop()
         clock.stop()
         wallpaper.stop()
@@ -136,8 +139,12 @@ open class HomeActivity : Activity() {
     }
 
     private fun handle(key: LauncherState.Key) {
+        val selection = state.selectionId
         val effect = state.key(key, scene.visibleRowCenter(state))
         scene.render(state)
+        if (key != LauncherState.Key.HOME && selection != state.selectionId) {
+            navigationSound.play()
+        }
         val app = scene.apps.getOrNull(state.row)
         val rowKey = if (allApps) "all_row" else "row"
         val appKey = if (allApps) "all_app" else "app"
@@ -148,6 +155,13 @@ open class HomeActivity : Activity() {
                 .putString(appKey, app?.packageName)
                 .apply()
         }
+        perform(effect, app)
+    }
+
+    private fun perform(
+        effect: LauncherState.Effect,
+        app: AppEntry?,
+    ) {
         when (effect) {
             LauncherState.Effect.LAUNCH -> app?.let { open(AppCatalog.launchIntent(packageManager, it.packageName)) }
             LauncherState.Effect.ALL_APPS -> open(Intent(this, AllAppsActivity::class.java))

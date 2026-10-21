@@ -21,6 +21,15 @@ class LauncherState(
         private set
     val hasPlayback get() = playbackActions.isNotEmpty()
 
+    // App rows, three menu items, then player controls. Compared without allocating.
+    val selectionId
+        get() =
+            when {
+                player >= 0 -> count + 3 + player
+                menu >= 0 -> count + menu
+                else -> row
+            }
+
     enum class Key { UP, DOWN, LEFT, RIGHT, SELECT, BACK, HOME, OTHER }
 
     enum class Effect {
